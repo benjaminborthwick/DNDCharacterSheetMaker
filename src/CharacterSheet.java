@@ -1,7 +1,28 @@
 import java.util.Scanner;
 import java.util.Random;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.ArrayList;
 public class CharacterSheet {
+	static Character playerCharacter;
+	static Skill acrobatics;
+	static Skill animalHandling;
+	static Skill arcana;
+	static Skill athletics;
+	static Skill deception;
+	static Skill history;
+	static Skill insight;
+	static Skill intimidation;
+	static Skill investigation;
+	static Skill medicine;
+	static Skill nature;
+	static Skill perception;
+	static Skill performance;
+	static Skill persuasion;
+	static Skill religion;
+	static Skill sleightOfHand;
+	static Skill stealth;
+	static Skill survival;
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		intro();
@@ -11,10 +32,14 @@ public class CharacterSheet {
 		String characterName = characterName(characterRace, characterGender);
 		int[] characterStats = characterStats(characterRace, characterClass);
 		int[] characterModifiers = characterModifiers(characterStats);
+		String characterAlignment = characterAlignment(characterRace);
 		String[] characterBackground = characterBackground();
-		//int[] characterSkillProficiencies = skillProficiencies(characterRace, characterClass, characterBackground);
-		//int[] characterSkills = characterSkills(characterModifiers, skillProficiencies);
+		Skill[] characterSkills = characterSkills(characterModifiers, characterRace, characterClass, characterBackground[0]);
+		for(int i = 0;i<17;i++){
+			System.out.println(characterSkills[i].index + ", " + characterSkills[i].skillName + ", " + characterSkills[i].Proficiency + ", " + characterSkills[i].skillModifier);
+		}
 		//int[] characterSavingThrows = characterSavingThrows(characterStats, savingThrowProficiencies);
+		playerCharacter = new Character(characterClass, characterRace, characterGender, characterName, characterStats, characterModifiers);
 	} 
 	public static void intro() {
 		System.out.println("Welcome to my Dungeons and Dragons character Creator!");
@@ -138,7 +163,7 @@ public class CharacterSheet {
 		default:
 			break;
 		} System.out.println("For your class, the most important stat is " + bestStat + ".\nThe second most important stat is " + goodStat);
-		System.out.println("Here are the races:\n1. Dwarf(+2 Constitution/+2 Strength or +1 Wisdom)\n2. Elf(Dexterity +2/Intelligence +1 or Wisdom +1)\n3. Halfling(Dexterity +2/Constitution +1 or Charisma +1)\n4. Human(+1 to all stats)\n5. Dragonborn(Strength +2/Charisma +1)\n6. Gnome(Intelligence +2/Dexterity +1 or Constitution +1)\n7. Half-elf(Charisma +2 and +1 to any two other stats of your choice)\n8. Half-orc(Strength +2/Constitution +1)\n9. Tiefling(Charisma +2/Intelligence +1)");
+		System.out.println("Here are the races:\n1. Dwarf(+2 Constitution/+2 Strength or +1 Wisdom)\n2. Elf(Dexterity +2/Intelligence +1 or Wisdom +1 or Charisma +1)\n3. Halfling(Dexterity +2/Constitution +1 or Charisma +1)\n4. Human(+1 to all stats)\n5. Dragonborn(Strength +2/Charisma +1)\n6. Gnome(Intelligence +2/Dexterity +1 or Constitution +1)\n7. Half-elf(Charisma +2 and +1 to any two other stats of your choice)\n8. Half-orc(Strength +2/Constitution +1)\n9. Tiefling(Charisma +2/Intelligence +1)");
 		int raceChoice = userInput.nextInt();
 		String race;
 		switch(raceChoice) {
@@ -365,30 +390,34 @@ public class CharacterSheet {
 		}switch(Race){
 		case "Elf":
 			characterStats[1] += 2;
-			System.out.println("For the stat bonus that comes with being an Elf, would you like to apply\n1. +1 to Intelligence\n2. +1 to Wisdom");
+			System.out.println("For the stat bonus that comes with being an Elf, would you like to apply\n1. +1 to Intelligence(high elf)\n2. +1 to Wisdom(wood elf)\n3. +1 to Charisma(drow)");
 			int elfStatBonus = userInput.nextInt();
 			if(elfStatBonus == 1){
 				characterStats[3]++;
 			} else if(elfStatBonus == 2){
 				characterStats[4]++;
+			} else if(elfStatBonus==3){
+				characterStats[5]++;
 			} else{
-				System.out.println("That wasn't an option. Your attribute bonus has defaulted to Constitution");
+				System.out.println("That wasn't an option. Your attribute bonus has defaulted to Intelligence");
+				characterStats[3]++;
 			}
 			break;
 		case "Dwarf":
 			characterStats[2] += 2;
-			System.out.println("For the stat bonus that comes with being a Dwarf, would you like to apply\n1. +2 to Strength\n2. +1 to Wisdom");
+			System.out.println("For the stat bonus that comes with being a Dwarf, would you like to apply\n1. +2 to Strength(mountain dwarf)\n2. +1 to Wisdom(hill dwarf)");
 			int dwarfStatBonus = userInput.nextInt();
 			if(dwarfStatBonus == 1){
 				characterStats[0] += 2;
 			} else if(dwarfStatBonus == 2){
 				characterStats[4]++;
 			} else{
-				System.out.println("That wasn't an option. Your attribute bonus has defaulted to Constitution");
+				System.out.println("That wasn't an option. Your attribute bonus has defaulted to Strength");
+				characterStats[0] += 2;
 			} break;
 		case "Halfling":
 			characterStats[1] += 2;
-			System.out.println("For the stat bonus that comes with being a Halfling, would you like to apply\n1. +1 to Constitution\n2. +1 to Charisma");
+			System.out.println("For the stat bonus that comes with being a Halfling, would you like to apply\n1. +1 to Constitution(stout)\n2. +1 to Charisma(lightfoot)");
 			int halflingStatBonus = userInput.nextInt();
 			if(halflingStatBonus == 1){
 				characterStats[2]++;
@@ -396,6 +425,7 @@ public class CharacterSheet {
 				characterStats[5]++;
 			} else{
 				System.out.println("That wasn't an option. Your attribute bonus has defaulted to Constitution");
+				characterStats[2]++;
 			}
 			break;
 		case "Human":
@@ -409,14 +439,15 @@ public class CharacterSheet {
 				break;
 			case "Gnome":
 				characterStats[3] += 2;
-				System.out.println("For the stat bonus that comes with being a Gnome, would you like to apply\n1. +1 Dexterity\n2. +1 Constitution");
+				System.out.println("For the stat bonus that comes with being a Gnome, would you like to apply\n1. +1 Dexterity(forest gnome)\n2. +1 Constitution(rock gnome)");
 				int gnomeStatBonus = userInput.nextInt();
 				if(gnomeStatBonus == 1){
 					characterStats[1]++;
 				} else if(gnomeStatBonus == 2){
 					characterStats[2]++;
 				} else{
-					System.out.println("That wasn't an option. Your attribute bonus has defaulted to Constitution");
+					System.out.println("That wasn't an option. Your attribute bonus has defaulted to Dexterity");
+					characterStats[1]++;
 				}
 				break;
 			case "Half-elf":
@@ -533,27 +564,293 @@ public class CharacterSheet {
 			}
 		} return Modifiers;
 	}
-	public static int[] characterSkills(int[] Modifiers){
-		int[] Skills = new int[18];
-		Skills[0] = Modifiers[1];
-		Skills[1] = Modifiers[4];
-		Skills[2] = Modifiers[2];
-		Skills[3] = Modifiers[0];
-		Skills[4] = Modifiers[5];
-		Skills[5] = Modifiers[2];
-		Skills[6] = Modifiers[4];
-		Skills[7] = Modifiers[5];
-		Skills[8] = Modifiers[2];
-		Skills[9] = Modifiers[4];
-		Skills[10] = Modifiers[2];
-		Skills[11] = Modifiers[4];
-		Skills[12] = Modifiers[5];
-		Skills[13] = Modifiers[5];
-		Skills[14] = Modifiers[2];
-		Skills[15] = Modifiers[1];
-		Skills[16] = Modifiers[1];
-		Skills[17] = Modifiers[4];
-		return Skills;
+	public static Skill[] characterSkills(int[] characterModifiers, String characterRace, String characterClass, String characterBackground){
+		Scanner userInput = new Scanner(System.in);
+		int[] stat = new int[19];
+		String backgroundProficiency1="";
+		String backgroundProficiency2="";
+		switch(characterBackground) {
+			case "Acolyte":
+				backgroundProficiency1="Insight";
+				backgroundProficiency2="Religion";
+				stat[6]=2;
+				stat[14]=2;
+				break;
+			case "Charlatan":
+				backgroundProficiency1="Deception";
+				backgroundProficiency2="Sleight of Hand";
+				stat[4]=2;
+				stat[15]=2;
+				break;
+			case "Entertainer":
+				backgroundProficiency1="Acrobatics";
+				backgroundProficiency2="Performance";
+				stat[0]=2;
+				stat[12]=2;
+				break;
+			case "Criminal":
+				backgroundProficiency1="Deception";
+				backgroundProficiency2="Stealth";
+				stat[4]=2;
+				stat[16]=2;
+				break;
+			case "Folk Hero":
+				backgroundProficiency1="Animal Handling";
+				backgroundProficiency2="Survival";
+				stat[1]=2;
+				stat[17]=2;
+				break;
+			case "Guild Artisan":
+				backgroundProficiency1="Insight";
+				backgroundProficiency2="Persuasion";
+				stat[6]=2;
+				stat[13]=2;
+				break;
+			case "Hermit":
+				backgroundProficiency1="Medicine";
+				backgroundProficiency2="Religion";
+				stat[9]=2;
+				stat[14]=2;
+				break;
+			case "Noble":
+				backgroundProficiency1="History";
+				backgroundProficiency2="Persuasion";
+				stat[5]=2;
+				stat[13]=2;
+				break;
+			case "Outlander":
+				backgroundProficiency1="Athletics";
+				backgroundProficiency2="Survival";
+				stat[3]=2;
+				stat[17]=2;
+				break;
+			case "Sage":
+				backgroundProficiency1="Arcana";
+				backgroundProficiency2="History";
+				stat[2]=2;
+				stat[5]=2;
+				break;
+			case "Sailor":
+				backgroundProficiency1="Athetics";
+				backgroundProficiency2="Perception";
+				stat[3]=2;
+				stat[11]=2;
+				break;
+			case "Soldier":
+				backgroundProficiency1="Athletics";
+				backgroundProficiency2="Intimidation";
+				stat[3]=2;
+				stat[7]=2;
+				break;
+			case "Urchin":
+				backgroundProficiency1="Sleight of Hand";
+				backgroundProficiency2="Stealth";
+				stat[15]=2;
+				stat[16]=2;
+				break;
+		}
+		System.out.println("Due to your background of " + characterBackground+ ", you already have proficiency in "+ backgroundProficiency1 + " and " + backgroundProficiency2 + ".");
+		switch(characterRace){
+			case "Elf":
+				System.out.println("Due to your race of Elf, you already have proficiency in Perception");
+				stat[11]=2;
+				break;
+			case "Half-elf":
+				System.out.println("Due to your race of Half-elf, you can choose two proficiencies. Type the numbers of your chosen proficiencies consecutively.");
+				System.out.println("0. Acrobatics\n1. Animal Handling\n2. Arcana\n3. Athletics\n4. Deception\n5. History\n6. Insight\n7. Intimidation\n8. Investigation\n9. Medicine\n10. Nature\n11. Perception\n12. Performance\n13. Persuasion\n14. Religion\n15. Sleight of Hand\n16. Stealth\n17.Survival");
+				stat[userInput.nextInt()] = 2;
+				stat[userInput.nextInt()] = 2;
+		}
+		ArrayList<String> classProficiencyChoices = new ArrayList();
+		switch(characterClass){
+			case "Barbarian":
+				classProficiencyChoices.add("1. Animal Handling");
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("10. Nature");
+				classProficiencyChoices.add("12. Perception");
+				classProficiencyChoices.add("17. Survival");
+				break;
+			case "Bard":
+				classProficiencyChoices.add("0. Acrobatics");
+				classProficiencyChoices.add("1. Animal Handling");
+				classProficiencyChoices.add("2. Arcana");
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("4. Deception");
+				classProficiencyChoices.add("5. History");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("8. Investigation");
+				classProficiencyChoices.add("9. Medicine");
+				classProficiencyChoices.add("10. Nature");
+				classProficiencyChoices.add("11. Perception");
+				classProficiencyChoices.add("12. Perception");
+				classProficiencyChoices.add("13. Persuasion");
+				classProficiencyChoices.add("14. Religion");
+				classProficiencyChoices.add("15. Sleight of Hand");
+				classProficiencyChoices.add("16. Stealth");
+				classProficiencyChoices.add("17. Survival");
+			case "Cleric":
+				classProficiencyChoices.add("5. History");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("9. Medicine");
+				classProficiencyChoices.add("13. Persuasion");
+				classProficiencyChoices.add("14. Religion");
+				break;
+			case "Druid":
+				classProficiencyChoices.add("1. Animal Handling");
+				classProficiencyChoices.add("2. Arcana");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("9. Medicine");
+				classProficiencyChoices.add("10. Nature");
+				classProficiencyChoices.add("11. Perception");
+				classProficiencyChoices.add("14. Religion");
+				classProficiencyChoices.add("17. Survival");
+				break;
+			case "Fighter":
+				classProficiencyChoices.add("0. Acrobatics");
+				classProficiencyChoices.add("1. Animal Handling");
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("5. History");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("11. Perception");
+				classProficiencyChoices.add("17. Survival");
+				break;
+			case "Monk":
+				classProficiencyChoices.add("0. Acrobatics");
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("5. History");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("14. Religion");
+				classProficiencyChoices.add("16. Stealth");
+				break;
+			case "Paladin":
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("9. Medicine");
+				classProficiencyChoices.add("13. Persuasion");
+				classProficiencyChoices.add("14. Religion");
+				break;
+			case "Ranger":
+				classProficiencyChoices.add("1. Animal Handling");
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("8. Investigation");
+				classProficiencyChoices.add("10. Nature");
+				classProficiencyChoices.add("11. Perception");
+				classProficiencyChoices.add("16. Stealth");
+				classProficiencyChoices.add("17.Survival");
+				break;
+			case "Rogue":
+				classProficiencyChoices.add("0. Acrobatics");
+				classProficiencyChoices.add("3. Athletics");
+				classProficiencyChoices.add("4. Deception");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("8. Investigation");
+				classProficiencyChoices.add("11. Perception");
+				classProficiencyChoices.add("15. Sleight of Hand");
+				classProficiencyChoices.add("16. Stealth");
+				break;
+			case "Sorcerer":
+				classProficiencyChoices.add("2. Arcana");
+				classProficiencyChoices.add("4. Deception");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("13. Persuasion");
+				classProficiencyChoices.add("14. Religion");
+				break;
+			case "Warlock":
+				classProficiencyChoices.add("2. Arcana");
+				classProficiencyChoices.add("4. Deception");
+				classProficiencyChoices.add("5. History");
+				classProficiencyChoices.add("7. Intimidation");
+				classProficiencyChoices.add("8. Investigation");
+				classProficiencyChoices.add("10. Nature");
+				classProficiencyChoices.add("14. Religion");
+				break;
+			case "Wizard":
+				classProficiencyChoices.add("2. Arcana");
+				classProficiencyChoices.add("5. History");
+				classProficiencyChoices.add("6. Insight");
+				classProficiencyChoices.add("8. Investigation");
+				classProficiencyChoices.add("9. Medicine");
+				classProficiencyChoices.add("14. Religion");
+				break;
+		}
+		if(characterClass=="Bard") {
+			System.out.println("For your class of Bard, choose 3 skill proficiencies from the following list. Type the numbers of the proficiencies you want consecutively.");
+			for (int i=0;i<classProficiencyChoices.size();i++) {
+				System.out.println(classProficiencyChoices.get(i));
+			}
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+		} else if(characterClass=="Ranger"){
+			System.out.println("For your class of Ranger, choose 3 skill proficiencies from the following list. Type the numbers of the proficiencies you want consecutively.");
+			for (int i=0;i<classProficiencyChoices.size();i++) {
+				System.out.println(classProficiencyChoices.get(i));
+			}
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+		} else if(characterClass=="Rogue"){
+			System.out.println("For your class of Rogue, choose 4 skill proficiencies from the following list. Type the numbers of the proficiencies you want consecutively.");
+			for (int i=0;i<classProficiencyChoices.size();i++) {
+				System.out.println(classProficiencyChoices.get(i));
+			}
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+		} else {
+			System.out.println("For your class of " + characterClass + ", choose 2 skill proficiencies from the following list. Type the numbers of the proficiencies you want consecutively.");
+			for (int i=0;i<classProficiencyChoices.size();i++) {
+				System.out.println(classProficiencyChoices.get(i));
+			}
+			stat[userInput.nextInt()]=2;
+			stat[userInput.nextInt()]=2;
+		}
+		acrobatics = new Skill(0, "Acrobatics", stat[0], characterModifiers[1]);
+		animalHandling = new Skill(1, "Animal Handling", stat[1], characterModifiers[4]);
+		arcana = new Skill(2, "Arcana", stat[2], characterModifiers[3]);
+		athletics = new Skill(3, "Athletics", stat[3], characterModifiers[0]);
+		deception = new Skill(4, "Deception", stat[4], characterModifiers[5]);
+		history = new Skill(5, "History", stat[5], characterModifiers[3]);
+		insight = new Skill(6, "Insight", stat[6], characterModifiers[4]);
+		intimidation = new Skill(7, "Intimidation", stat[7], characterModifiers[5]);
+		investigation = new Skill(8, "Investigation", stat[8], characterModifiers[3]);
+		medicine = new Skill(9, "Medicine", stat[9], characterModifiers[4]);
+		nature = new Skill(10, "Nature", stat[10], characterModifiers[3]);
+		perception = new Skill(11, "Perception", stat[11], characterModifiers[4]);
+		performance = new Skill(12, "Performance", stat[12], characterModifiers[5]);
+		persuasion = new Skill(13, "Persuasion", stat[13], characterModifiers[5]);
+		religion = new Skill(14, "Religion", stat[14], characterModifiers[3]);
+		sleightOfHand = new Skill(15, "Sleight of Hand", stat[15], characterModifiers[1]);
+		stealth = new Skill(16, "Stealth", stat[16], characterModifiers[1]);
+		survival = new Skill(17, "Survival", stat[17], characterModifiers[4]);
+		Skill[] characterSkills = new Skill[18];
+		characterSkills[0] = acrobatics;
+		characterSkills[1] = animalHandling;
+		characterSkills[2] = arcana;
+		characterSkills[3] = athletics;
+		characterSkills[4] = deception;
+		characterSkills[5] = history;
+		characterSkills[6] = insight;
+		characterSkills[7] = intimidation;
+		characterSkills[8] = investigation;
+		characterSkills[9] = medicine;
+		characterSkills[10] = nature;
+		characterSkills[11] = perception;
+		characterSkills[12] = performance;
+		characterSkills[13] = persuasion;
+		characterSkills[14] = religion;
+		characterSkills[15] = sleightOfHand;
+		characterSkills[16] = stealth;
+		characterSkills[17] = survival;
+		return characterSkills;
 	}
 	public static int[] characterSavingThrows(int[] Modifiers){
 		int[] savingThrows = new int[6];
@@ -565,20 +862,57 @@ public class CharacterSheet {
 		savingThrows[6] = Modifiers[6];
 		return savingThrows;
 	}
+	public static String characterAlignment(String characterRace) {
+		Scanner userInput = new Scanner(System.in);
+		System.out.println("Now you should choose an alignment for your character. The alignments are Lawful Good, \nLawful Neutral, Lawful Evil, Neutral Good, True Neutral, Neutral Evil, Chaotic \nGood, Chaotic Neutral, and Chaotic Evil.");
+		switch(characterRace) {
+			case "Dwarf":
+			System.out.println("Most dwarves are lawful, believing firmly in the benefits of a well-ordered society. \nThey tend toward good as well, with a strong sense of fair play and a belief \nthat everyone deserves to share in the benefits of a just order.");
+			break;
+			case "Elf":
+			System.out.println("Elves love freedom, variety, and self-expression, so they lean strongly towards the \ngentler aspects of chaos. They value and protect others' freedom as well as \ntheir own, and they are more often good than not. The drow are an exception: \ntheir exile into the Underdark has made them vicious and dangerous. \nDrow are more often evil than not.");
+			break;
+			case "Halfling":
+			System.out.println("Most halflings are lawful good. As a rule, they are good-hearted and kind, hate to see \nothers in pain, and have no tolerance for oppression. They are also very \norderly and traditional, leaning heavily on the support of their community and \nthe comfort of their old ways.");
+			break;
+			case "Human":
+			System.out.println("Humans tend toward no particular alignment. The best and the worst are found among them.");
+			break;
+			case "Dragonborn":
+			System.out.println("Dragonborn tend to extremes, making a conscious choice for one side or the other in the \ncosmic war between good and evil (represented by Bahamut and Tiamat, \nrespectively). Most dragonborn are good, but those who side with Tiamat can be \nterrible villains.");
+			break;
+			case "Gnome":
+			System.out.println("Gnomes are most often good. Thpse who tend toward law are sages, engineers, researchers, \nscholars, investigators, or inventors. Those who tend toward chaos are \nminstrels, tricksters, wanderers, or fanciful jewelers. Gnomes are good-hearted, \nand even the tricksters among them are more playful than vicious.");
+			break;
+			case "Half-elf":
+			System.out.println("Half-elves share the chaotic bent of their elven heritage. They value both personal freedom \nand creative expression, demonstrating neither love of leaders nor \ndesire for followers. They chafe at rulers, resent others' demands, and sometimes \nprove unreliable, or at least unpredictable.");
+			break;
+			case "Half-orc":
+			System.out.println("Half-orcs inherit a tendency toward chaos from their orc parents and are not strongle \ninclined toward good. Half-orcs raised among orcs and willing to live out \ntheir lives among them are usually evil.");
+			break;
+			case "Tiefling":
+			System.out.println("Tieflings might not have an innate tendency toward evil, but many of them end up there. \nEvil or not, an independent nature inclines many tieflings toward a \nchaotic alignment.");
+			break;
+		}
+		System.out.println("Please indicate your character's chosen alignment using a two letter combination, such as LG or TN.");
+		return userInput.nextLine();
+	}
 	public static String[] characterBackground(){
 		Random generator = new Random();
 		Scanner userInput = new Scanner(System.in);
 		System.out.println("Now you should choose a background. This is your character's profession \nin your backstory. For the campaign you play in it's your choice whether or not they still \ndo this, but they did in the past. The choices are:\n1. Acolyte\n2. Charlatan\n3. Criminal\n4. Entertainer\n5. Guild Artisan\n6. Hermit\n7. Noble\n8. Outlander\n9. Sage\n10. Sailor\n11. Soldier");
 		String[] Background = new String[5];
 		int BackgroundNum = userInput.nextInt();
+		String BackgroundNum2 = "";
 		switch(BackgroundNum){
 		case 1:
 			System.out.println("You chose Acolyte");
 			Background[0] = "Acolyte";
-			System.out.println("Now you must choose a personality trait from this list\n1.");
-			String BackgroundNum2 = userInput.nextLine();
+			System.out.println("Now you must choose a personality trait from this list\n1. I idolize a particular hero of my faith, and constantly refer to that person's deeds nad example. \n2. I can find common ground between the fiercest enemies, empathizing with them and always working towards peace.\n3. I see omens in every event and action. The gods speak to us, we just need to listen.\n4. Nothing can shake my optimistic attitude.\n5. I quote (or misquote) sacred texts and proverbs in almost every situation.\n6. I am tolerant (or intolerant) of other faiths and respect (or condemn) the worship of other gods.\n7. I've enjoyed fine food, drink, and high society among my temple's elite. Rough living grates on me.\n8. I've spent so long in the temple that I have little practical experience dealing with people in the outside world.");
+			BackgroundNum2 = userInput.nextLine();
+			BackgroundNum2 = userInput.nextLine();
 			Background[1] = BackgroundNum2;
-			System.out.println("Now you must choose a personality trait from this list\n1.");
+			System.out.println("Now you must choose an ideal from this list\n1. Tradition. The ancient traditions of worship and sacrifice must be preserved and upheld. (Lawful)\n2. Charity. I always try to help those in need, no matter what the personal cost. (Good)\n3. Change. We must always help bring about the changes the gods are constantly working in the world. (Chaotic)\n4. Power. I hope to one day rise to the top of my faith's religious hierarchy. (Lawful)\n5. Faith. I trust that my deity will guide my actions. I have faith that if I work hard, things will go well. (Lawful)\n6. Aspiration. I seek to prove ");
 			BackgroundNum2 = userInput.nextLine();
 			Background[2] = BackgroundNum2;
 			System.out.println("Now you must choose a personality trait from this list\n1.");
