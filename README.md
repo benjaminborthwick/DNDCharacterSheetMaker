@@ -1,2 +1,3 @@
 # DNDCharacterSheetMaker
 Adapts the instructions and descriptions contained in the DnD 5e Player's Manual to assist the inexperienced with character creation. Extremely simplistic logic wise but it was a lot of typing....
+Program is incomplete but it still helps with a significant chunk of the char creation process.
